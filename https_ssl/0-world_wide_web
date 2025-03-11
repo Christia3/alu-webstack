@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# Function to fetch and display DNS information for a given subdomain
+get_dns_info() {
+    local subdomain=$1
+    local domain=$2
+    local full_domain="${subdomain}.${domain}"
+    
+    # Use dig to fetch the DNS record and extract relevant info using awk
+    result=$(dig "$full_domain" +short)
+    
+    if [[ -n "$result" ]]; then
+        echo "The subdomain $subdomain is a A record and points to $result"
+    else
+        echo "No record found for $full_domain"
+    fi
+}
+
+# Main script logic
+if [[ -z "$1" ]]; then
+    echo "Usage: $0 <domain> [subdomain]"
+    exit 1
+fi
+
+domain="$1"
+
+if [[ -n "$2" ]]; then
+    get_dns_info "$2" "$domain"
+else
+    for sub in www lb-01 web-01 web-02; do
+        get_dns_info "$sub" "$domain"
+    done
+fi
+
